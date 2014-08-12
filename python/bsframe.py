@@ -166,7 +166,7 @@ def getoutputfilenames(configfile):
     postfix = xmlparser.parse(rawxmlfile,"PostFix")
     rootfilenamelist = ""
     for name in namelist:
-        if name.find("SelectionCycle") != -1: cyclename=name
+        if name.find("Cycle") != -1: cyclename=name
     for type,version in zip(typelist,versionlist):
         rootfilenamelist += cyclename+"."+type+"."+version+postfix[0]+".root, "
     return rootfilenamelist[:-2]
@@ -536,7 +536,10 @@ if options.create:
         if options.usetarball == "": os.system("mv "+tarball+" "+workingdir+"/"+options.jobname+"/configs")
         else: os.system("cp "+options.usetarball+" "+workingdir+"/"+options.jobname+"/configs/"+options.jobname+".tgz")
         os.chdir(workingdir+"/"+options.jobname)
-        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& CACHEDIR.TAG')
+        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& configs/CACHEDIR.TAG')
+        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& logs/CACHEDIR.TAG')
+        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& results/CACHEDIR.TAG')
+        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& status/CACHEDIR.TAG')
     os.chdir(workingdir)
 
 if not os.path.isdir(options.jobname):
@@ -558,7 +561,6 @@ if options.retar:
     if options.usetarball == "": os.system("mv "+tarball+" "+workingdir+"/"+options.jobname+"/configs")
     else: os.system("cp "+options.usetarball+" "+workingdir+"/"+options.jobname+"/configs/"+options.jobname+".tgz")
     os.chdir(workingdir+"/"+options.jobname)
-    os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& CACHEDIR.TAG')
     os.chdir(workingdir)
 
 if options.kill!="":
@@ -660,4 +662,4 @@ if (options.status):
         print "\nThere are "+str(len(resubmitjobs))+" jobs with problems!!!!"
         print "Resubmit jobs: "+makestringlist(resubmitjobs)
 
-print "\nBSFrame has completed execution!"
+print "\nBSFrame has completed execution for task "+options.jobname+"\n"
