@@ -190,8 +190,10 @@ def createcondortxt(options, jobnumber, jobdir):
     if len(options.output)>5 and options.output[:5] == "/eos/": outputfiles=""
     print >> condorfile, """universe = vanilla
 Executable = %s/configs/%s_%d.sh
-Requirements = Memory >= 199 &&OpSys == "LINUX"&& (Arch != "DUMMY" )&& Disk > 1000000
+Requirements = OpSys == "LINUX"&& (Arch != "DUMMY" )
 +BigMemoryJob = TRUE
+request_memory = 1024
+request_disk = 1000000
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 InitialDir = %s
@@ -513,6 +515,12 @@ if options.create:
     os.mkdir(options.jobname+"/results")
     os.mkdir(options.jobname+"/status")
     os.mkdir(options.jobname+"/xml")
+    os.chdir(options.jobname)
+    os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& configs/CACHEDIR.TAG')
+    os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& logs/CACHEDIR.TAG')
+    os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& results/CACHEDIR.TAG')
+    os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& status/CACHEDIR.TAG')
+    os.chdir(workingdir)
 
     if not os.path.isdir(options.output) and options.output!="": os.makedirs(options.output)
 
@@ -536,10 +544,6 @@ if options.create:
         if options.usetarball == "": os.system("mv "+tarball+" "+workingdir+"/"+options.jobname+"/configs")
         else: os.system("cp "+options.usetarball+" "+workingdir+"/"+options.jobname+"/configs/"+options.jobname+".tgz")
         os.chdir(workingdir+"/"+options.jobname)
-        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& configs/CACHEDIR.TAG')
-        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& logs/CACHEDIR.TAG')
-        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& results/CACHEDIR.TAG')
-        os.system('echo "Signature: 8a477f597d28d172789f06886806bc55" >& status/CACHEDIR.TAG')
     os.chdir(workingdir)
 
 if not os.path.isdir(options.jobname):
@@ -549,8 +553,6 @@ if not os.path.isdir(options.jobname):
 if options.retar:
     if options.create: print "There is no point in creating a task and then recreating the tarball."
     if options.notar: print "You are stupid!"
-    os.chdir(workingdir+"/"+options.jobname)
-    if os.path.isfile("CACHEDIR.TAG"): os.remove("CACHEDIR.TAG")
     os.chdir(cmsswbase+"/..")
     tarball = options.jobname+".tgz"
     target = os.popen("echo ${CMSSW_BASE##*/}").readline().strip("\n")+"/"
